@@ -10,4 +10,4 @@ that, just follow the steps in the [AddonSDK Repo](https://github.com/mozilla/ad
 
 ## Download Page
 
-https://addons.mozilla.org/en-US/firefox/addon/260484/
+[https://addons.mozilla.org/en-US/firefox/addon/260484/](https://addons.mozilla.org/en-US/firefox/addon/260484/)
