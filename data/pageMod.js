@@ -16,18 +16,21 @@ onMessage = function onMessage(action) {
 };
 
 try{
+  window.unloadListener = function(e){
+    postMessage({"action":"unload"});
+    return true;
+  }
   
-    jQuery(window).unload(function(e){
-        postMessage({"action":"unload"});
-        return true;
-    });
-    
-    jQuery.subscribe("gs.player.nowplaying", function(song){
-      postMessage({"action":"nowPlaying", "song":song})
-    });
-    
-    jQuery.subscribe("gs.player.stopped", function(song){
-      postMessage({"action":"stopped"})
-    });
-    
+  window.nowPlayingListener = function(song){
+    postMessage({"action":"nowPlaying", "song":song})
+  }
+  
+  window.stoppedListener = function(song){
+    postMessage({"action":"stopped"})
+  }
+  
+  jQuery(window).unload(unloadListener);
+  jQuery.subscribe("gs.player.nowplaying", nowPlayingListener);
+  jQuery.subscribe("gs.player.stopped", stoppedListener);
+  
 } catch(e) { };
