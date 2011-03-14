@@ -2,10 +2,40 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <style>
+     div {
+      padding-top:1px;
+      background:lightgrey;
+      border:1px black solid;
+      height: 13px;
+      font-family: sans-serif;
+      font-size:12px;
+      padding: 0 3px;
+      border-radius: 5px;
+      overflow: hidden;
+     }
+     span {
+      position: relative;
+      white-space: nowrap;
+     }
+    </style>
   </head>
   <body>
-    <div id="songDisplay" style="padding-top:1px; background:lightgrey; border:1px black solid; height: 13px; font-family: sans-serif; font-size:12px;">
-      %SONG% - %ARTIST%
+    <div id="songDisplayContainer">
+      <span id="songDisplay">%SONG% - %ARTIST%</span>
     </div>
+    <span id="lala"></span>
+    <script type="text/javascript">
+      var scrollLeft = 0;
+      var songTitle = document.getElementById('songDisplay');
+      var songTitleContainer = document.getElementById('songDisplayContainer');
+      if(songTitle.offsetWidth > songTitleContainer.offsetWidth) {
+        setInterval(function(){
+          songTitle.style.left = scrollLeft+'px';
+          scrollLeft = ((scrollLeft - 8) % songTitle.offsetWidth);
+          document.getElementById('lala').innerHTML = scrollLeft;
+        },500);
+      }
+    </script>
   </body>
 </html>
