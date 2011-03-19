@@ -51,6 +51,7 @@
       font-size:14px;
       color: white;
       text-shadow: 1px 1px 1px #1fbdff;
+      -moz-transition: left 10s linear;
      }
     </style>
   </head>
@@ -62,25 +63,44 @@
     </div>
     <script type="text/javascript">
       var runningInterval = -1;
+      const INTERVAL = 10; //Transition Duration
+      const GUTTER = 30;  //Portion of the song title that won't scroll
       
       function startScrolling(){
         var scrollLeft = 0;
         var songTitle = document.getElementById('songDisplay');
         var songTitleContainer = document.getElementById('songDisplayContainer');
-        
+
         if(songTitle.offsetWidth > songTitleContainer.offsetWidth) {
-          runningInterval= setInterval(function(){
-            songTitle.style.left = scrollLeft+'px';
-            scrollLeft -= 2;
-            if(scrollLeft < -1 * songTitle.offsetWidth)
-              scrollLeft = songTitle.offsetWidth;
-          },200);
+          songTitle.style.left = '0px';
+          songTitle.style.MozTransitionProperty = 'left';
+          songTitle.style.MozTransitionDuration = INTERVAL+'s';
+          songTitle.style.left = -1 * ( songTitle.offsetWidth - GUTTER ) + 'px';
+          function scrollText(){
+            if(songTitle.style.left == -1 * ( songTitle.offsetWidth - GUTTER ) + 'px') {
+              //Rewind text
+              songTitle.style.MozTransitionProperty = 'none';
+              songTitle.style.left = ( songTitleContainer.offsetWidth - GUTTER )+'px';
+              scrollText();
+            } else {
+              //Start scrolling from the left
+              if(songTitle.style.left == ( songTitleContainer.offsetWidth - GUTTER )+'px') {
+                songTitle.style.MozTransitionProperty = 'left';
+                songTitle.style.MozTransitionDuration = ( INTERVAL * 2 )+'s';
+                songTitle.style.left = -1*( songTitle.offsetWidth - GUTTER )+'px';
+                runningInterval = setTimeout(scrollText, INTERVAL * 2 * 1000);
+              }
+            }
+          }
+          runningInterval = setTimeout(scrollText, INTERVAL * 1000);
         }
       }
       
       function stopScrolling(){
         if(runningInterval > 0) 
-          window.clearInterval(runningInterval);
+          window.clearTimeout(runningInterval);
+          
+        document.getElementById('songDisplay').style.MozTransitionProperty = 'none';
         document.getElementById('songDisplay').style.left = '0px';
       }
       

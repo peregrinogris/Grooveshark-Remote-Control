@@ -16,18 +16,23 @@ onMessage = function onMessage(action) {
 };
 
 try{
-  var flag = false;
   window.unloadListener = function(e){
     postMessage({"action":"unload"});
     return true;
   }
   
+  //
+  var wireTapped = false;
+  
   window.nowPlayingListener = function(song){
-    postMessage({"action":"nowPlaying", "song":song})
-    if (!flag) {
-      GS.player.player.setPlaybackStatusCallback(
-        "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); progressListener(b);}"
-      );
+    if(song.ArtistName) {
+      postMessage({"action":"nowPlaying", "song":song})
+      if (!wireTapped) {
+        GS.player.player.setPlaybackStatusCallback(
+          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); progressListener(b);}"
+        );
+        wireTapped = true;
+      }
     }
   }
   
