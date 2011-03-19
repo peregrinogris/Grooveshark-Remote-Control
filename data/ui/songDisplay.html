@@ -3,38 +3,96 @@
   <head>
     <meta charset="utf-8">
     <style>
-     div {
-      padding-top:1px;
-      background:lightgrey;
+      
+    @font-face {
+      font-family: 'ComfortaaRegular';
+      src: url('comfortaa/Comfortaa_Regular-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    div.background {
+      position: absolute;
+      background: #999;
       border:1px black solid;
-      height: 13px;
-      font-family: sans-serif;
-      font-size:12px;
-      padding: 0 3px;
+      height: 14px;
       border-radius: 5px;
       overflow: hidden;
+      width: 298px;
+      z-index:1;
+    }
+    
+    .scroller {
+      position: absolute;
+      min-width: 0;
+      display: none;
+      height: 100%;
+    }
+     
+    .scroller.buffered {
+      background: rgba(0,0,0,0.6);
+      z-index:2;
+      -moz-transition: all 0.2s ease-out;
      }
-     span {
-      position: relative;
+     
+    .scroller.playing {
+      background: #08549f;
+      z-index:3;
+      -moz-transition: all 1.2s ease-out;
+     }
+     
+     #songDisplay {
+      position: absolute;
       white-space: nowrap;
+      z-index:4;
+      margin-top: -2px;
+      padding: 0 3px;
+      font-family: 'ComfortaaRegular';
+      font-size:14px;
+      color: white;
+      text-shadow: 1px 1px 1px #1fbdff;
      }
     </style>
   </head>
   <body>
-    <div id="songDisplayContainer">
-      <span id="songDisplay">%SONG% - %ARTIST%</span>
+    <div id="songDisplayContainer" class="background">
+      <span id="songDisplay">Not Playing</span>
+      <span class="scroller playing"></span>
+      <span class="scroller buffered"></span>
     </div>
-    <span id="lala"></span>
     <script type="text/javascript">
-      var scrollLeft = 0;
-      var songTitle = document.getElementById('songDisplay');
-      var songTitleContainer = document.getElementById('songDisplayContainer');
-      if(songTitle.offsetWidth > songTitleContainer.offsetWidth) {
-        setInterval(function(){
-          songTitle.style.left = scrollLeft+'px';
-          scrollLeft = ((scrollLeft - 8) % songTitle.offsetWidth);
-          document.getElementById('lala').innerHTML = scrollLeft;
-        },500);
+      var runningInterval = -1;
+      
+      function startScrolling(){
+        var scrollLeft = 0;
+        var songTitle = document.getElementById('songDisplay');
+        var songTitleContainer = document.getElementById('songDisplayContainer');
+        
+        if(songTitle.offsetWidth > songTitleContainer.offsetWidth) {
+          runningInterval= setInterval(function(){
+            songTitle.style.left = scrollLeft+'px';
+            scrollLeft -= 2;
+            if(scrollLeft < -1 * songTitle.offsetWidth)
+              scrollLeft = songTitle.offsetWidth;
+          },200);
+        }
+      }
+      
+      function stopScrolling(){
+        if(runningInterval > 0) 
+          window.clearInterval(runningInterval);
+        document.getElementById('songDisplay').style.left = '0px';
+      }
+      
+      function updateProgressMeters(position, buffered){
+        var bufferMeter = document.querySelector('.buffered');
+        var positionMeter = document.querySelector('.playing');
+        
+        bufferMeter.style.minWidth = buffered+'%';
+        bufferMeter.style.display = 'block';
+        
+        positionMeter.style.minWidth = position+'%';
+        positionMeter.style.display = 'block';
       }
     </script>
   </body>
