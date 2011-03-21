@@ -15,7 +15,7 @@ onMessage = function onMessage(msg) {
     case 'notPlaying':
       document.querySelector('#songDisplay').innerHTML =
         'Not Playing';
-      //stopScrolling();
+      stopScrolling();
       break
   }
 }
