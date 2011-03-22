@@ -31,7 +31,7 @@ try{
   
   window.nowPlayingListener = function(song){
     if(song.ArtistName) {
-      postMessage({"action":"nowPlaying", "song":song});
+      postMessage({"action":"nowPlaying", "song":song, "notify": true});
       if (!wireTapped) {
         GS.player.player.setPlaybackStatusCallback(
           "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); progressListener(b);}"
@@ -54,7 +54,7 @@ try{
   }
   
   window.playingListener = function(event){
-      postMessage({"action":"nowPlaying", "song":event.activeSong});
+      postMessage({"action":"nowPlaying", "song":event.activeSong, "notify": false});
   }
   
   jQuery(window).unload(unloadListener);
