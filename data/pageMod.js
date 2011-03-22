@@ -2,8 +2,11 @@ onMessage = function onMessage(action) {
   try{
     switch(action) {
       case "play":
-        GS.player.playSong();
-        GS.player.resumeSong();
+        if(GS.player.isPaused) {
+          GS.player.resumeSong();
+        } else {
+          GS.player.playSong();
+        }
         break
       case "pause":
         GS.player.pauseSong();
