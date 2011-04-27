@@ -2,7 +2,7 @@
     "name": "gs-remote", 
     "license": "MPL", 
     "author": "Hernan Rodriguez Colmeiro", 
-    "version": "0.3", 
+    "version": "0.3.1", 
     "fullName": "Grooveshark Remote Control", 
     "id": "jid0-louF1d9B6fCB9aYNBoUJcV7HSHw", 
     "description": "This is a simple remote control for controlling the new Grooveshark API from any webpage you're browsing."
