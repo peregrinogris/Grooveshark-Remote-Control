@@ -1,33 +1,25 @@
 var GS = unsafeWindow.GS;
 
-onMessage = function onMessage(action) {
-  try{
-    switch(action) {
-      case "play":
-        if(GS.player.isPaused) {
-          GS.player.resumeSong();
-        } else {
-          GS.player.playSong();
-        }
-        break
-      case "pause":
-        GS.player.pauseSong();
-        break
-      case "next":
-        GS.player.nextSong();
-        break
-      case "previous":
-        GS.player.previousSong();
-        break
-    }
-  } catch (e) {
-    //console.log('GS not ready');
+self.port.on("play", function () {
+  if(GS.player.isPaused) {
+    GS.player.resumeSong();
+  } else {
+    GS.player.playSong();
   }
-};
+});
+self.port.on("pause", function () {
+  GS.player.pauseSong();
+});
+self.port.on("next", function () {
+  GS.player.nextSong();
+});
+self.port.on("previous", function () {
+  GS.player.previousSong();
+});
 
 try{
   function unloadListener(e){
-    postMessage({"action":"unload"});
+    self.port.emit("unload");
     return true;
   }
 
@@ -36,7 +28,7 @@ try{
 
   function nowPlayingListener(song){
     if(song.ArtistName) {
-      postMessage({"action":"nowPlaying", "song":song, "notify": true});
+      self.port.emit("nowPlaying", {"song":song, "notify": true});
       if (!wireTapped) {
         // Take care that this JS string is going to be evaluated in document
         // scope, so it doesn't have access to content scripts functions.
@@ -50,21 +42,20 @@ try{
   }
 
   function stoppedListener(song){
-    postMessage({"action":"stopped", "songsQueued":song.AlbumID > 0})
+    self.port.emit("stopped", {"songsQueued":song.AlbumID > 0});
   }
 
   // Expose this function to document scope as we register it before with
   // `setPlaybackStatusCallback`
   unsafeWindow.gs_ff_plugin_progressListener = function progressListener(event){
-    postMessage({
-      "action":"songProgress",
+    self.port.emit("songProgress", {
       "position": Math.ceil(event.position/event.duration*100),
       "buffered": Math.ceil(event.bytesLoaded/event.bytesTotal*100)
     });
   }
 
   function playingListener(event){
-      postMessage({"action":"nowPlaying", "song":event.activeSong, "notify": false});
+      self.port.emit("nowPlaying", {"song":event.activeSong, "notify": false});
   }
 
   var jQuery = unsafeWindow.jQuery;
