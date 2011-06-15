@@ -1,3 +1,5 @@
+var GS = unsafeWindow.GS;
+
 onMessage = function onMessage(action) {
   try{
     switch(action) {
@@ -24,7 +26,7 @@ onMessage = function onMessage(action) {
 };
 
 try{
-  window.unloadListener = function(e){
+  function unloadListener(e){
     postMessage({"action":"unload"});
     return true;
   }
@@ -32,23 +34,28 @@ try{
   //flag to know when to tap the communication between the UI and the player
   var wireTapped = false;
 
-  window.nowPlayingListener = function(song){
+  function nowPlayingListener(song){
     if(song.ArtistName) {
       postMessage({"action":"nowPlaying", "song":song, "notify": true});
       if (!wireTapped) {
+        // Take care that this JS string is going to be evaluated in document
+        // scope, so it doesn't have access to content scripts functions.
+        // Except if we explicitely expose one, like gs_ff_plugin_progressListener
         GS.player.player.setPlaybackStatusCallback(
-          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); progressListener(b);}"
+          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); gs_ff_plugin_progressListener(b);}"
         );
         wireTapped = true;
       }
     }
   }
 
-  window.stoppedListener = function(song){
+  function stoppedListener(song){
     postMessage({"action":"stopped", "songsQueued":song.AlbumID > 0})
   }
 
-  window.progressListener = function(event){
+  // Expose this function to document scope as we register it before with
+  // `setPlaybackStatusCallback`
+  unsafeWindow.gs_ff_plugin_progressListener = function progressListener(event){
     postMessage({
       "action":"songProgress",
       "position": Math.ceil(event.position/event.duration*100),
@@ -56,11 +63,12 @@ try{
     });
   }
 
-  window.playingListener = function(event){
+  function playingListener(event){
       postMessage({"action":"nowPlaying", "song":event.activeSong, "notify": false});
   }
 
-  jQuery(window).unload(unloadListener);
+  var jQuery = unsafeWindow.jQuery;
+  jQuery(unsafeWindow).unload(unloadListener);
   jQuery.subscribe("gs.player.nowplaying", nowPlayingListener);
   jQuery.subscribe("gs.player.playing", playingListener);
   jQuery.subscribe("gs.player.stopped", stoppedListener);
