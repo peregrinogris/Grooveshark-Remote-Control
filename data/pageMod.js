@@ -1,66 +1,65 @@
-onMessage = function onMessage(action) {
-  try{
-    switch(action) {
-      case "play":
-        if(GS.player.isPaused) {
-          GS.player.resumeSong();
-        } else {
-          GS.player.playSong();
-        }
-        break
-      case "pause":
-        GS.player.pauseSong();
-        break
-      case "next":
-        GS.player.nextSong();
-        break
-      case "previous":
-        GS.player.previousSong();
-        break
-    }
-  } catch (e) {
-    //console.log('GS not ready');
+var GS = unsafeWindow.GS;
+
+self.port.on("play", function () {
+  if(GS.player.isPaused) {
+    GS.player.resumeSong();
+  } else {
+    GS.player.playSong();
   }
-};
+});
+self.port.on("pause", function () {
+  GS.player.pauseSong();
+});
+self.port.on("next", function () {
+  GS.player.nextSong();
+});
+self.port.on("previous", function () {
+  GS.player.previousSong();
+});
 
 try{
-  window.unloadListener = function(e){
-    postMessage({"action":"unload"});
+  function unloadListener(e){
+    self.port.emit("unload");
     return true;
   }
 
   //flag to know when to tap the communication between the UI and the player
   var wireTapped = false;
 
-  window.nowPlayingListener = function(song){
+  function nowPlayingListener(song){
     if(song.ArtistName) {
-      postMessage({"action":"nowPlaying", "song":song, "notify": true});
+      self.port.emit("nowPlaying", {"song":song, "notify": true});
       if (!wireTapped) {
+        // Take care that this JS string is going to be evaluated in document
+        // scope, so it doesn't have access to content scripts functions.
+        // Except if we explicitely expose one, like gsrc_progressListener
         GS.player.player.setPlaybackStatusCallback(
-          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); progressListener(b);}"
+          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); gsrc_progressListener(b);}"
         );
         wireTapped = true;
       }
     }
   }
 
-  window.stoppedListener = function(song){
-    postMessage({"action":"stopped", "songsQueued":song.AlbumID > 0})
+  function stoppedListener(song){
+    self.port.emit("stopped", {"songsQueued":song.AlbumID > 0});
   }
 
-  window.progressListener = function(event){
-    postMessage({
-      "action":"songProgress",
+  // Expose this function to document scope as we register it before with
+  // `setPlaybackStatusCallback`
+  unsafeWindow.gsrc_progressListener = function progressListener(event){
+    self.port.emit("songProgress", {
       "position": Math.ceil(event.position/event.duration*100),
       "buffered": Math.ceil(event.bytesLoaded/event.bytesTotal*100)
     });
   }
 
-  window.playingListener = function(event){
-      postMessage({"action":"nowPlaying", "song":event.activeSong, "notify": false});
+  function playingListener(event){
+      self.port.emit("nowPlaying", {"song":event.activeSong, "notify": false});
   }
 
-  jQuery(window).unload(unloadListener);
+  var jQuery = unsafeWindow.jQuery;
+  jQuery(unsafeWindow).unload(unloadListener);
   jQuery.subscribe("gs.player.nowplaying", nowPlayingListener);
   jQuery.subscribe("gs.player.playing", playingListener);
   jQuery.subscribe("gs.player.stopped", stoppedListener);
