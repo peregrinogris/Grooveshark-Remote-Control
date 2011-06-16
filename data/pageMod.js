@@ -32,9 +32,9 @@ try{
       if (!wireTapped) {
         // Take care that this JS string is going to be evaluated in document
         // scope, so it doesn't have access to content scripts functions.
-        // Except if we explicitely expose one, like gs_ff_plugin_progressListener
+        // Except if we explicitely expose one, like gsrc_progressListener
         GS.player.player.setPlaybackStatusCallback(
-          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); gs_ff_plugin_progressListener(b);}"
+          "function(b){GS.Controllers.PlayerController.instance().playerStatus(b); gsrc_progressListener(b);}"
         );
         wireTapped = true;
       }
@@ -47,7 +47,7 @@ try{
 
   // Expose this function to document scope as we register it before with
   // `setPlaybackStatusCallback`
-  unsafeWindow.gs_ff_plugin_progressListener = function progressListener(event){
+  unsafeWindow.gsrc_progressListener = function progressListener(event){
     self.port.emit("songProgress", {
       "position": Math.ceil(event.position/event.duration*100),
       "buffered": Math.ceil(event.bytesLoaded/event.bytesTotal*100)
