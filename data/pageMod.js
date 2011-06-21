@@ -1,3 +1,4 @@
+//using experimental unsafeWindow - Bug 660780
 var GS = unsafeWindow.GS;
 
 self.port.on("play", function () {
@@ -7,15 +8,10 @@ self.port.on("play", function () {
     GS.player.playSong();
   }
 });
-self.port.on("pause", function () {
-  GS.player.pauseSong();
-});
-self.port.on("next", function () {
-  GS.player.nextSong();
-});
-self.port.on("previous", function () {
-  GS.player.previousSong();
-});
+
+self.port.on("pause", function () GS.player.pauseSong() );
+self.port.on("next", function () GS.player.nextSong() );
+self.port.on("previous", function () GS.player.previousSong() );
 
 try{
   function unloadListener(e){

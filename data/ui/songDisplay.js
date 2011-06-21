@@ -33,9 +33,9 @@ function startScrolling(){
 }
 
 function stopScrolling(){
-  if(runningInterval > 0) 
+  if(runningInterval > 0)
     window.clearTimeout(runningInterval);
-    
+
   document.getElementById('songDisplay').style.MozTransitionProperty = 'none';
   document.getElementById('songDisplay').style.left = '0px';
 }
@@ -43,10 +43,10 @@ function stopScrolling(){
 function updateProgressMeters(position, buffered){
   var bufferMeter = document.querySelector('.buffered');
   var positionMeter = document.querySelector('.playing');
-  
+
   bufferMeter.style.minWidth = buffered+'%';
   bufferMeter.style.display = 'block';
-  
+
   positionMeter.style.minWidth = position+'%';
   positionMeter.style.display = 'block';
 }
@@ -54,12 +54,14 @@ function updateProgressMeters(position, buffered){
 self.port.on('songProgress', function (msg) {
   updateProgressMeters(msg.position, msg.buffered);
 });
+
 self.port.on('nowPlaying', function (msg) {
   document.querySelector('#songDisplay').innerHTML =
     msg.song.SongName + ' - ' + msg.song.ArtistName
   stopScrolling();  //Stop the posible scrolling of the last song
   startScrolling(); //if needed, start scrolling the text
 });
+
 self.port.on('notPlaying', function (msg) {
   console.log("not playing");
   document.querySelector('#songDisplay').innerHTML =
