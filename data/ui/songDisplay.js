@@ -63,8 +63,6 @@ self.port.on('nowPlaying', function (msg) {
 });
 
 self.port.on('notPlaying', function (msg) {
-  console.log("not playing");
-  document.querySelector('#songDisplay').innerHTML =
-    'Not Playing';
+  document.querySelector('#songDisplay').innerHTML = 'Not Playing';
   stopScrolling();
 });
