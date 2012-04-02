@@ -3,15 +3,72 @@
   <head>
     <style>
       img {
-        width:200px; 
+        width:200px;
         height:200px;
         margin: auto;
-        position: relative;
+        position: absolute;
         display: block;
+        z-index: 1;
+        bottom: 10px;
       }
+
+      @font-face {
+        font-family: 'ComfortaaRegular';
+        src: url('comfortaa/Comfortaa_Regular-webfont.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      .songInfo {
+        margin: 5px 8px;
+        text-align: center;
+        font-family: 'ComfortaaRegular';
+        color: black;
+        text-shadow: 1px 1px 1px #1fbdff;
+        padding: 3px;
+        font-height: 14px;
+        line-height: 14px;
+
+        z-index: 3;
+        width: 180px;
+        position: absolute;
+        border-radius: 5px;
+        bottom: 10px;
+      }
+
+      .background {
+        opacity: 0.5;
+        margin: 5px 8px;
+        text-align: center;
+        font-family: 'ComfortaaRegular';
+        color: white;
+        text-shadow: 1px 1px 1px #1fbdff;
+        padding: 3px;
+        min-height: 45px;
+
+        z-index: 2;
+        width: 180px;
+        position: absolute;
+        background: #999;
+        border-radius: 5px;
+        bottom: 10px;
+      }
+
+      .infoContainer {
+        margin-top: -15px;
+      }
+
     </style>
   </head>
   <body>
-    <img id="albumArt" src="http://beta.grooveshark.com/static/amazonart/mdefault.jpg"/>
+    <div class="infoContainer">
+      <img id="albumArt" src="http://beta.grooveshark.com/static/amazonart/mdefault.jpg"/>
+      <div class="background"></div>
+      <div class="songInfo">
+        <span id="songName">Song</span><br />
+        <span id="artistName">Artist</span><br />
+        <span id="albumName">Album Name</span>
+      </div>
+    </div>
   </body>
 </html>
