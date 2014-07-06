@@ -4,5 +4,8 @@
     "author": "Hernan Rodriguez Colmeiro", 
     "version": "0.3.3", 
     "fullName": "Grooveshark Remote Control", 
-    "id": "jid0-louF1d9B6fCB9aYNBoUJcV7HSHw" 
+    "id": "jid0-louF1d9B6fCB9aYNBoUJcV7HSHw", 
+    "permissions": {
+        "unsafe-content-script": true
+    }
 }
