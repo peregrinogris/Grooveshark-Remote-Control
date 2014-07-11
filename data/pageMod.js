@@ -9,11 +9,6 @@ self.port.on("next", function () unsafeWindow.top.Grooveshark.next() );
 self.port.on("previous", function () unsafeWindow.top.Grooveshark.previous() );
 
 try{
-  function unloadListener(e){
-    self.port.emit("unload");
-    return true;
-  }
-
   function nowPlayingListener(song){
     if(song.ArtistName) {
       self.port.emit("nowPlaying", {"song":song, "notify": true});
@@ -49,7 +44,5 @@ try{
   function playingListener(song){
       self.port.emit("nowPlaying", {"song":song, "notify": false});
   }
-  
-  unsafeWindow.onunload = unloadListener;
 
 } catch(e) { console.exception(e); };
