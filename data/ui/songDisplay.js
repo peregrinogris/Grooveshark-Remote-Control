@@ -55,9 +55,9 @@ self.port.on('songProgress', function (msg) {
   updateProgressMeters(msg.position, msg.buffered);
 });
 
-self.port.on('nowPlaying', function (msg) {
+self.port.on('nowPlaying', function (song) {
   document.querySelector('#songDisplay').innerHTML =
-    msg.song.SongName + ' - ' + msg.song.ArtistName
+    song.songName + ' - ' + song.artistName
   stopScrolling();  //Stop the posible scrolling of the last song
   startScrolling(); //if needed, start scrolling the text
 });

@@ -1,39 +1,17 @@
 //using experimental unsafeWindow - Bug 660780
-var GS = unsafeWindow.GS;
 
 self.port.on("play", function () {
-  if(GS.player.isPaused) {
-    GS.player.resumeSong();
-  } else {
-    GS.player.playSong();
-  }
+  unsafeWindow.top.Grooveshark.togglePlayPause();
 });
 
-self.port.on("pause", function () GS.player.pauseSong() );
-self.port.on("next", function () GS.player.nextSong() );
-self.port.on("previous", function () GS.player.previousSong() );
+self.port.on("pause", function () unsafeWindow.top.Grooveshark.pause() );
+self.port.on("next", function () unsafeWindow.top.Grooveshark.next() );
+self.port.on("previous", function () unsafeWindow.top.Grooveshark.previous() );
 
 try{
-  function unloadListener(e){
-    self.port.emit("unload");
-    return true;
-  }
-
-  //flag to know when to tap the communication between the UI and the player
-  var wireTapped = false;
-
   function nowPlayingListener(song){
     if(song.ArtistName) {
       self.port.emit("nowPlaying", {"song":song, "notify": true});
-      if (!wireTapped) {
-        // Take care that this JS string is going to be evaluated in document
-        // scope, so it doesn't have access to content scripts functions.
-        // Except if we explicitely expose one, like gsrc_progressListener
-        GS.player.player.setPlaybackStatusCallback(
-          "gsrc_progressListener"
-        );
-        wireTapped = true;
-      }
     }
   }
 
@@ -43,22 +21,28 @@ try{
 
   // Expose this function to document scope as we register it before with
   // `setPlaybackStatusCallback`
-  unsafeWindow.gsrc_progressListener = function progressListener(event){
-    GS.Controllers.PlayerController.instance().playerStatus(event);
+  function progressListener(event){
     self.port.emit("songProgress", {
-      "position": Math.ceil(event.position/event.duration*100),
-      "buffered": Math.ceil(event.bytesLoaded/event.bytesTotal*100)
+      "position": Math.ceil(event.song.position/event.song.calculatedDuration*100)
     });
+    
+    if (event.status == "playing") {
+    	playingListener(event.song);
+    }
+  }
+  exportFunction(progressListener, unsafeWindow, {defineAs: "gsrc_progressListener"});
+  
+  function insertGSCallback() {
+	  var script = window.top.document.createElement("script");
+	  script.textContent = "window.top.Grooveshark.setSongStatusCallback(gsrc_progressListener);";
+	  window.top.document.body.appendChild(script);
+  }
+  
+  exportFunction(insertGSCallback, unsafeWindow, {defineAs: "insertGSCallback"});
+  unsafeWindow.insertGSCallback();
+  
+  function playingListener(song){
+      self.port.emit("nowPlaying", {"song":song, "notify": false});
   }
 
-  function playingListener(event){
-      self.port.emit("nowPlaying", {"song":event.activeSong, "notify": false});
-  }
-
-  var jQuery = unsafeWindow.jQuery;
-  jQuery(unsafeWindow).unload(unloadListener);
-  jQuery.subscribe("gs.player.nowplaying", nowPlayingListener);
-  jQuery.subscribe("gs.player.playing", playingListener);
-  jQuery.subscribe("gs.player.stopped", stoppedListener);
-
-} catch(e) { };
+} catch(e) { console.exception(e); };
